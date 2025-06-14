@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Meva Search</title>
+    <style>
+        @font-face {
+            font-family: 'Space Grotesk';
+            src: url('https://fonts.data.ixavence.org/Space-Grotesk.ttf');
+            font-display: swap;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: #0e1116;
+            --card-bg: #1a1d24;
+            --text: #e6e6e6;
+            --text-secondary: #9ca3af;
+            --border: #2a2f3a;
+            --accent: #22d3ee;
+            --accent-hover: #0ea5e9;
+            --accent-muted: rgba(34, 211, 238, 0.2);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .logo-accent {
+            color: var(--accent);
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .search-input-container {
+            display: flex;
+            align-items: center;
+            height: 44px;
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background-color: var(--background);
+            padding: 0 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input-container:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-muted);
+        }
+
+        .search-icon {
+            margin-right: 0.75rem;
+            color: var(--text-secondary);
+            width: 18px;
+            height: 18px;
+        }
+
+        .search-input {
+            flex: 1;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-btn {
+            background: var(--accent);
+            border: none;
+            color: #000;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 16px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            margin-left: 0.5rem;
+        }
+
+        .search-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Main content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .results-section {
+            min-width: 0;
+        }
+
+        .sidebar {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        /* Search info */
+        .search-info {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-query {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .search-stats {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Filter tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .filter-tab:hover,
+        .filter-tab.active {
+            background: var(--accent-muted);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Google CSE Styling */
+        .gcse-searchresults-only {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        /* Override Google CSE default styles to match dark theme */
+        .gsc-results .gsc-cursor-box .gsc-cursor-page {
+            color: var(--text-secondary) !important;
+        }
+
+        .gsc-results .gsc-cursor-box .gsc-cursor-current-page {
+            color: var(--accent) !important;
+            background: var(--accent-muted) !important;
+        }
+
+        .gsc-webResult .gsc-result,
+        .gsc-results .gsc-imageResult {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 12px !important;
+            margin-bottom: 1.5rem !important;
+            padding: 1.5rem !important;
+        }
+
+        .gsc-webResult .gsc-result:hover {
+            border-color: var(--accent-muted) !important;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+
+        .gs-title a.gs-title:link,
+        .gs-title a.gs-title:visited {
+            color: var(--accent) !important;
+            text-decoration: none !important;
+        }
+
+        .gs-title a.gs-title:hover {
+            color: var(--accent-hover) !important;
+        }
+
+        .gs-snippet {
+            color: var(--text-secondary) !important;
+        }
+
+        .gsc-url-top,
+        .gsc-url-bottom {
+            color: var(--success) !important;
+        }
+
+        .gsc-results .gsc-cursor-box {
+            text-align: center !important;
+            margin-top: 2rem !important;
+        }
+
+        .gsc-cursor-page {
+            background: var(--card-bg) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text) !important;
+            margin: 0 0.25rem !important;
+            padding: 0.5rem 0.75rem !important;
+            border-radius: 8px !important;
+            text-decoration: none !important;
+        }
+
+        .gsc-cursor-page:hover {
+            border-color: var(--accent) !important;
+            background: var(--accent-muted) !important;
+        }
+
+        .gsc-cursor-current-page {
+            background: var(--accent) !important;
+            color: #000 !important;
+            border-color: var(--accent) !important;
+        }
+
+        .gsc-control-cse {
+            background-color: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        .gsc-above-wrapper-area {
+            border-bottom: 1px solid var(--border) !important;
+            padding-bottom: 1rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        .gsc-result-info {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Sidebar content */
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .related-searches {
+            list-style: none;
+        }
+
+        .related-searches li {
+            margin-bottom: 0.5rem;
+        }
+
+        .related-searches a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .related-searches a:hover {
+            color: var(--accent);
+        }
+
+        .search-tips {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Loading state */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 1rem;
+                gap: 1rem;
+            }
+
+            .logo {
+                font-size: 1.25rem;
+            }
+
+            .main {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .sidebar {
+                order: -1;
+                position: static;
+            }
+
+            .filter-tabs {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-container {
+                width: 100%;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header with search -->
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <span>Meva </span><span class="logo-accent">Search</span>
+            </a>
+            
+            <div class="search-container">
+                <form class="search-form" id="search-form">
+                    <div class="search-input-container">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" class="search-input" id="search-input" placeholder="Search..." autocomplete="off">
+                        <button type="submit" class="search-btn">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main">
+        <div class="results-section">
+            <!-- Search info -->
+            <div class="search-info">
+                <div class="search-query" id="search-query">Search results</div>
+                <div class="search-stats" id="search-stats">Powered by PSE</div>
+            </div>
+
+            <!-- Filter tabs -->
+            <div class="filter-tabs">
+                <a href="#" class="filter-tab active" data-filter="all">All</a>
+                <a href="#" class="filter-tab" data-filter="web">Web</a>
+                <a href="#" class="filter-tab" data-filter="images">Images</a>
+                <a href="#" class="filter-tab" data-filter="videos">Videos</a>
+                <a href="#" class="filter-tab" data-filter="news">News</a>
+            </div>
+
+            <!-- Loading state -->
+            <div class="loading-container" id="loading-container">
+                <div class="loading-spinner"></div>
+            </div>
+
+            <!-- Google Custom Search Results -->
+            <script async src="https://cse.google.com/cse.js?cx=82cd8cd83dfc842ce"></script>
+            <div class="gcse-searchresults-only"></div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Related Searches</h3>
+                <ul class="related-searches" id="related-searches">
+                    <li><a href="?q=web+development">web development</a></li>
+                    <li><a href="?q=javascript+tutorial">javascript tutorial</a></li>
+                    <li><a href="?q=css+guide">css guide</a></li>
+                    <li><a href="?q=react+framework">react framework</a></li>
+                    <li><a href="?q=node.js+backend">node.js backend</a></li>
+                    <li><a href="?q=database+design">database design</a></li>
+                    <li><a href="?q=api+development">api development</a></li>
+                    <li><a href="?q=web+security">web security</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Search Tips</h3>
+                <div class="search-tips">
+                    <p><strong>Use quotes</strong> for exact phrases</p>
+                    <p><strong>Use -</strong> to exclude words</p>
+                    <p><strong>Use site:</strong> to search specific sites</p>
+                    <p><strong>Use filetype:</strong> for specific file types</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Privacy Notice</h3>
+                <div class="search-tips">
+                    <p>Search results powered by Google Custom Search Engine while maintaining your privacy through Meva Search.</p>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        // Get search query from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q') || '';
+        const isLucky = urlParams.get('lucky') === '1';
+
+        // Initialize page
+        function initializePage() {
+            if (query) {
+                document.getElementById('search-input').value = query;
+                document.getElementById('search-query').textContent = `Search results for: "${query}"`;
+                
+                // Hide loading spinner once CSE loads
+                setTimeout(() => {
+                    const loadingContainer = document.getElementById('loading-container');
+                    if (loadingContainer) {
+                        loadingContainer.style.display = 'none';
+                    }
+                }, 2000);
+
+                // Handle "I'm Feeling Lucky"
+                if (isLucky) {
+                    // For lucky search, we'll let Google CSE handle it normally
+                    // but could add custom logic here if needed
+                }
+            } else {
+                // No query provided, hide loading and show message
+                document.getElementById('loading-container').innerHTML = `
+                    <div style="text-align: center; color: var(--text-secondary);">
+                        <p>Enter a search query to see results</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Handle new search
+        document.getElementById('search-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newQuery = document.getElementById('search-input').value.trim();
+            if (newQuery) {
+                window.location.href = `?q=${encodeURIComponent(newQuery)}`;
+            }
+        });
+
+        // Handle filter tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Update active tab
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, you could modify the CSE query
+                const filter = this.dataset.filter;
+                console.log('Filter selected:', filter);
+                
+                // You could add filter-specific search parameters here
+                // For example, for images: add "tbm=isch" parameter
+                // For news: add "tbm=nws" parameter
+            });
+        });
+
+        // Update related searches based on current query
+        function updateRelatedSearches() {
+            if (!query) return;
+            
+            const relatedContainer = document.getElementById('related-searches');
+            const relatedTerms = [
+                `${query} tutorial`,
+                `${query} guide`,
+                `${query} examples`,
+                `${query} best practices`,
+                `${query} documentation`,
+                `learn ${query}`,
+                `${query} tips`,
+                `${query} tools`
+            ];
+            
+            relatedContainer.innerHTML = relatedTerms.map(term => 
+                `<li><a href="?q=${encodeURIComponent(term)}">${term}</a></li>`
+            ).join('');
+        }
+
+        // Initialize page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            updateRelatedSearches();
+        });
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', function() {
+            initializePage();
+            updateRelatedSearches();
+        });
+
+        // Listen for CSE load completion
+        window.__gcse = {
+            callback: function() {
+                // Hide loading spinner when CSE is ready
+                const loadingContainer = document.getElementById('loading-container');
+                if (loadingContainer) {
+                    loadingContainer.style.display = 'none';
+                }
+            }
+        };
+    </script>
+</body>
+
+</html>

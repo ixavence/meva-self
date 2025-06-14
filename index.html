@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tab</title>
+
+    <link rel="stylesheet" href="index.css">
+
+</head>
+
+<body>
+    <!-- Canvas container for background -->
+    <div class="canvas-container">
+        <canvas id="particle-field"></canvas>
+    </div>
+
+    <!-- Home Page -->
+    <div class="home-page">
+        <div class="container">
+            <!-- Logo -->
+            <div class="logo">
+                <span>Meva </span><span class="logo-accent">Search</span>
+            </div>
+
+            <!-- Search Container -->
+            <div class="search-container">
+                <form class="search-form" id="search-form" action="/search" method="get">
+                    <div class="search-input-container">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" class="search-input" id="search-input" name="q"
+                            placeholder="Search privately..." autocomplete="off" autofocus>
+                        <div class="loading" id="loading"></div>
+                        <button type="button" class="voice-btn" id="voice-btn" title="Voice search">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Suggestions -->
+                    <div class="suggestions-box" id="suggestions-box"></div>
+
+                    <div class="search-buttons">
+                        <button type="submit" class="btn btn-primary">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            Meva Search
+                        </button>
+                        <button type="button" class="btn btn-outline" id="lucky-button">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10"></polygon>
+                            </svg>
+                            Full Throttle
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Features -->
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <div class="feature-text">
+                        <div class="feature-title">Private Search</div>
+                        <div class="feature-description">No tracking and self-hosted project</div>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13,2 3,14 12,14 11,22 21,10 12,10"></polygon>
+                        </svg>
+                    </div>
+                    <div class="feature-text">
+                        <div class="feature-title">Fast Results</div>
+                        <div class="feature-description">Lightning-fast search results</div>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="feature-text">
+                        <div class="feature-title">No Filter Bubble</div>
+                        <div class="feature-description">Unbiased, neutral results</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div>Meva Search - The private search engine</div>
+                <p>Self-Hosted</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-input');
+        const suggestionsBox = document.getElementById('suggestions-box');
+        const voiceBtn = document.getElementById('voice-btn');
+        const luckyBtn = document.getElementById('lucky-button');
+        const loading = document.getElementById('loading');
+
+        let selectedSuggestion = -1;
+        let suggestions = [];
+
+        // Search form submission
+        searchForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+                // Redirect to search results page
+                window.location.href = `res.html?q=${encodeURIComponent(query)}`;
+            }
+        });
+
+        // I'm Feeling Lucky
+        luckyBtn.addEventListener('click', function () {
+            const query = searchInput.value.trim();
+            if (query) {
+                // Redirect to first result
+                window.location.href = `res.html?q=${encodeURIComponent(query)}&lucky=1`;
+            }
+        });
+
+        // Keyboard navigation
+        searchInput.addEventListener('keydown', function (e) {
+            const suggestionItems = suggestionsBox.querySelectorAll('.suggestion-item');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedSuggestion = Math.min(selectedSuggestion + 1, suggestionItems.length - 1);
+                updateSelectedSuggestion(suggestionItems);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedSuggestion = Math.max(selectedSuggestion - 1, -1);
+                updateSelectedSuggestion(suggestionItems);
+            } else if (e.key === 'Escape') {
+                hideSuggestions();
+            } else if (e.key === 'Enter' && selectedSuggestion >= 0) {
+                e.preventDefault();
+                searchInput.value = suggestions[selectedSuggestion];
+                hideSuggestions();
+                searchForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Update selected suggestion
+        function updateSelectedSuggestion(items) {
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedSuggestion);
+            });
+
+            if (selectedSuggestion >= 0) {
+                searchInput.value = suggestions[selectedSuggestion];
+            }
+        }
+
+        // Voice search
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            voiceBtn.addEventListener('click', function () {
+                recognition.start();
+                voiceBtn.style.color = 'var(--accent)';
+            });
+
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript;
+                searchInput.value = transcript;
+                voiceBtn.style.color = 'var(--text-secondary)';
+                searchForm.dispatchEvent(new Event('submit'));
+            };
+
+            recognition.onerror = function () {
+                voiceBtn.style.color = 'var(--text-secondary)';
+            };
+
+            recognition.onend = function () {
+                voiceBtn.style.color = 'var(--text-secondary)';
+            };
+        } else {
+            voiceBtn.style.display = 'none';
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                hideSuggestions();
+            }
+        });
+
+        // Particle background animation
+        const canvas = document.getElementById('particle-field');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticles() {
+            const particles = [];
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 2 + 1
+                });
+            }
+
+            return particles;
+        }
+
+        function animateParticles(particles) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+
+                if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+                if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(34, 211, 238, 0.1)';
+                ctx.fill();
+            });
+
+            requestAnimationFrame(() => animateParticles(particles));
+        }
+
+        // Initialize particles
+        resizeCanvas();
+        const particles = createParticles();
+        animateParticles(particles);
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Focus search input on page load
+        window.addEventListener('load', function () {
+            searchInput.focus();
+        });
+    </script>
+
+</body>
+
+</html>

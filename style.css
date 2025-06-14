@@ -1,0 +1,73 @@
+.toggle-switch {
+    position: relative;
+    width: 42px;      /* zmniejszona szerokość */
+    height: 20px;     /* zmniejszona wysokość */
+    background: #e0e0e0;
+    border-radius: 10.5px; /* połowa wysokości */
+    cursor: pointer;
+    transition: 0.3s ease;
+    border: none;
+    outline: none;
+}
+
+.toggle-switch.active {
+    background: #858dff;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 2px;          /* trochę mniejszy odstęp od góry */
+    left: 2px;         /* trochę mniejszy odstęp od lewej */
+    width: 16px;       /* mniejszy slider */
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.toggle-switch.active .toggle-slider {
+    transform: translateX(22px);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000000000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 300px;
+    margin: 20% auto;
+    text-align: center;
+}
+
+.modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-confirm {
+    background: #858dff;
+    color: white;
+}
+
+.btn-cancel {
+    background: #f0f0f0;
+    color: black;
+}
